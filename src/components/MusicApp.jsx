@@ -7,7 +7,7 @@ const MusicApp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const API_BASE_URL = import.meta.env.API_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const searchSongs = async (searchQuery) => {
     if (!searchQuery.trim()) {
