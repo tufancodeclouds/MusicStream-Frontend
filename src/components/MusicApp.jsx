@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Music2, Play, ExternalLink, Loader2 } from 'lucide-react';
+import VideoEmbed from './VideoEmbed';
 
 const MusicApp = () => {
   const [query, setQuery] = useState('');
@@ -59,13 +60,13 @@ const MusicApp = () => {
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerContent}>
-          <div style={styles.headerFlex}>
+          <div style={styles.headerFlex} className='headerFlex2'>
             <div style={styles.logo}>
               <Music2 style={styles.logoIcon} />
             </div>
             <div>
               <h1 style={styles.title}>MusicStream</h1>
-              <p style={styles.subtitle}>Discover music from YouTube</p>
+              <p style={styles.subtitle}>Discover the music you love</p>
             </div>
           </div>
         </div>
@@ -86,9 +87,10 @@ const MusicApp = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               style={styles.input}
+              className='input2'
             />
             {loading && (
-              <div style={styles.searchingIndicator}>
+              <div style={styles.searchingIndicator} className='searchingIndicator2'>
                 <Loader2 style={{ width: 20, height: 20, animation: 'spin 1s linear infinite' }} />
               </div>
             )}
@@ -114,7 +116,7 @@ const MusicApp = () => {
         {!loading && songs.length > 0 && (
           <div>
             <div style={styles.resultsHeader}>
-              <h2 style={styles.resultsTitle}>
+              <h2 style={styles.resultsTitle} className='resultsTitle2'>
                 Found {songs.length} results
               </h2>
             </div>
@@ -130,7 +132,7 @@ const MusicApp = () => {
                 >
                   <div style={styles.songCardContent}>
                     {/* Thumbnail */}
-                    <div style={styles.thumbnailWrapper}>
+                    <div style={styles.thumbnailWrapper} className='d-none d-lg-block'>
                       <img
                         src={song?.image?.[0] || '/placeholder.png'}
                         alt={song.name}
@@ -156,30 +158,23 @@ const MusicApp = () => {
                       {/* Video Player */}
                       <div style={styles.videoWrapper}>
                         <div style={styles.videoContainer}>
-                          <iframe
+                          {/* <iframe
                             width="100%"
                             height="100%"
-                            src={`https://www.youtube.com/embed/${song.id}`}
+                            src={`https://www.youtube.com/embed/${song.id}?enablejsapi=1&modestbranding=1&rel=0&showinfo=0&controls=1`}
                             title={song.name}
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                             style={styles.iframe}
-                          ></iframe>
-                        </div>
-                      </div>
+                          /> */}
 
-                      {/* Actions */}
-                      <div style={styles.actionsWrapper}>
-                        <a
-                          href={song.videoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={styles.youtubeLink}
-                        >
-                          <ExternalLink style={styles.linkIcon} />
-                          Watch on YouTube
-                        </a>
+                          <VideoEmbed videoId={song.id} />
+
+
+                          {/* CLICK BLOCKER */}
+                          <div style={styles.blockLogo}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -211,10 +206,10 @@ const MusicApp = () => {
               </div>
               <h3 style={styles.welcomeTitle}>Welcome to MusicStream</h3>
               <p style={styles.welcomeText}>
-                Search for your favorite songs, artists, or albums and discover amazing music from YouTube
+                Search for your favorite songs, artists, or albums and discover amazing music from MusicStream.
               </p>
               <div style={styles.tagsContainer}>
-                {['Yoga Music', 'Classical', 'Meditation'].map((tag) => (
+                {['Yoga Music', 'Classical', 'Meditation', 'Sleep Sounds'].map((tag) => (
                   <button
                     key={tag}
                     onClick={() => handleTagClick(tag)}
@@ -246,6 +241,28 @@ const MusicApp = () => {
         }
         input::placeholder {
           color: #ffffff99;
+        }
+        .d-none {
+          display: none;
+        }
+        @media (max-width: 575.99px) {
+          .headerFlex2 {
+            justify-content: center;
+          }
+          .input2 {
+            font-size: 16px !important;
+          }
+          .searchingIndicator2 {
+            padding: 0 8px !important;
+          }
+          .resultsTitle2 {
+            font-size: 20px !important;
+          }
+        }
+        @media (min-width: 992px) {
+          .d-lg-block {
+            display: block;
+          }
         }
       `}</style>
     </div>
@@ -477,7 +494,8 @@ const styles = {
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-    paddingBottom: '56.25%',
+    // paddingBottom: '56.25%',
+    paddingBottom: '0',
     background: 'rgba(0, 0, 0, 0.4)',
   },
   iframe: {
@@ -582,6 +600,26 @@ const styles = {
     border: '1px solid rgba(255, 255, 255, 0.2)',
     cursor: 'pointer',
   },
+  blockLogo: {
+    position: "absolute",
+    right: "45px",
+    bottom: 0,
+    width: "75px",
+    height: "40px",
+    zIndex: 9999,
+    cursor: "default",
+    background: "transparent",
+  },
+  // blockLogo: {
+  //   position: "absolute",
+  //   right: "10px",
+  //   bottom: "8px",
+  //   width: "215px",
+  //   height: "48px",
+  //   zIndex: 9999,
+  //   cursor: "default",
+  //   background: "transparent",
+  // }
 };
 
 export default MusicApp;
