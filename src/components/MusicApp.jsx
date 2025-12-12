@@ -7,6 +7,7 @@ const MusicApp = () => {
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [playingVideoId, setPlayingVideoId] = useState(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -42,7 +43,6 @@ const MusicApp = () => {
     setLoading(false);
   };
 
-  // Auto-search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       searchSongs(query);
@@ -55,9 +55,12 @@ const MusicApp = () => {
     setQuery(tag);
   };
 
+  const handleVideoPlay = (videoId) => {
+    setPlayingVideoId(videoId);
+  };
+
   return (
     <div style={styles.container}>
-      {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.headerFlex} className='headerFlex2'>
@@ -72,9 +75,7 @@ const MusicApp = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div style={styles.mainContent}>
-        {/* Search Bar */}
         <div style={styles.searchWrapper}>
           <div style={styles.searchGlow}></div>
           <div style={styles.searchContainer}>
@@ -97,14 +98,12 @@ const MusicApp = () => {
           </div>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div style={styles.errorBox}>
             <p style={styles.errorText}>{error}</p>
           </div>
         )}
 
-        {/* Loading State */}
         {loading && (
           <div style={styles.loadingContainer}>
             <Loader2 style={{ ...styles.loadingIcon, animation: 'spin 1s linear infinite' }} />
@@ -112,7 +111,6 @@ const MusicApp = () => {
           </div>
         )}
 
-        {/* Results */}
         {!loading && songs.length > 0 && (
           <div>
             <div style={styles.resultsHeader}>
@@ -131,7 +129,6 @@ const MusicApp = () => {
                   }}
                 >
                   <div style={styles.songCardContent}>
-                    {/* Thumbnail */}
                     <div style={styles.thumbnailWrapper} className='d-none d-lg-block'>
                       <img
                         src={song?.image?.[0] || '/placeholder.png'}
@@ -145,7 +142,6 @@ const MusicApp = () => {
                       </div>
                     </div>
 
-                    {/* Info */}
                     <div style={styles.songInfo}>
                       <div>
                         <h3 style={styles.songName}>{song.name}</h3>
@@ -155,24 +151,13 @@ const MusicApp = () => {
                         </p>
                       </div>
 
-                      {/* Video Player */}
                       <div style={styles.videoWrapper}>
                         <div style={styles.videoContainer}>
-                          {/* <iframe
-                            width="100%"
-                            height="100%"
-                            src={`https://www.youtube.com/embed/${song.id}?enablejsapi=1&modestbranding=1&rel=0&showinfo=0&controls=1`}
-                            title={song.name}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            style={styles.iframe}
-                          /> */}
-
-                          <VideoEmbed videoId={song.id} />
-
-
-                          {/* CLICK BLOCKER */}
+                          <VideoEmbed 
+                            videoId={song.id}
+                            isPlaying={playingVideoId === song.id}
+                            onPlay={() => handleVideoPlay(song.id)}
+                          />
                           <div style={styles.blockLogo}></div>
                         </div>
                       </div>
@@ -184,7 +169,6 @@ const MusicApp = () => {
           </div>
         )}
 
-        {/* No Results */}
         {!loading && query.trim() && songs.length === 0 && !error && (
           <div style={styles.centerContainer}>
             <div style={styles.messageBox}>
@@ -197,7 +181,6 @@ const MusicApp = () => {
           </div>
         )}
 
-        {/* Welcome State */}
         {!query.trim() && songs.length === 0 && (
           <div style={styles.centerContainer}>
             <div style={styles.messageBox}>
@@ -494,39 +477,18 @@ const styles = {
     borderRadius: '12px',
     overflow: 'hidden',
     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-    // paddingBottom: '56.25%',
     paddingBottom: '0',
     background: 'rgba(0, 0, 0, 0.4)',
   },
-  iframe: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-  },
-  actionsWrapper: {
-    marginTop: '16px',
-    display: 'flex',
-    gap: '8px',
-  },
-  youtubeLink: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    color: 'white',
-    borderRadius: '8px',
-    transition: 'all 0.3s',
-    textDecoration: 'none',
-    fontSize: '14px',
-    fontWeight: '500',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-  },
-  linkIcon: {
-    width: 16,
-    height: 16,
+  blockLogo: {
+    position: "absolute",
+    right: "45px",
+    bottom: 0,
+    width: "75px",
+    height: "40px",
+    zIndex: 9999,
+    cursor: "default",
+    background: "transparent",
   },
   centerContainer: {
     textAlign: 'center',
@@ -602,24 +564,14 @@ const styles = {
   },
   blockLogo: {
     position: "absolute",
-    right: "45px",
+    right: 0,
     bottom: 0,
-    width: "75px",
+    width: "80px",
     height: "40px",
     zIndex: 9999,
     cursor: "default",
     background: "transparent",
-  },
-  // blockLogo: {
-  //   position: "absolute",
-  //   right: "10px",
-  //   bottom: "8px",
-  //   width: "215px",
-  //   height: "48px",
-  //   zIndex: 9999,
-  //   cursor: "default",
-  //   background: "transparent",
-  // }
+  }
 };
 
 export default MusicApp;
