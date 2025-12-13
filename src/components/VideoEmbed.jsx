@@ -8,7 +8,7 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
   useEffect(() => {
     const handleMessage = (event) => {
       if (event.origin !== "https://www.youtube.com") return;
-      
+
       try {
         const data = JSON.parse(event.data);
         if (data.event === "onStateChange") {
@@ -50,8 +50,19 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
     }
   }, [isPlaying, playing]);
 
+  const lockLandscape = async () => {
+    if (screen.orientation && screen.orientation.lock) {
+      try {
+        await screen.orientation.lock("landscape");
+      } catch (e) {
+        console.log("Orientation lock blocked");
+      }
+    }
+  };
+
   const handlePlay = () => {
     onPlay();
+    lockLandscape();
     const iframe = iframeRef.current;
     if (iframe) {
       iframe.contentWindow.postMessage(
