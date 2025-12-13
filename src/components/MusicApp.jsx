@@ -482,10 +482,10 @@ const styles = {
   },
   blockLogo: {
     position: "absolute",
-    right: "45px",
+    right: "50px",
     bottom: 0,
-    width: "75px",
-    height: "40px",
+    width: "70px",
+    height: "48px",
     zIndex: 9999,
     cursor: "default",
     background: "transparent",

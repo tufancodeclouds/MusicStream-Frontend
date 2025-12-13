@@ -68,10 +68,10 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
         ref={iframeRef}
         width="100%"
         height="100%"
-        src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&modestbranding=1&rel=0&controls=1&fs=0&showinfo=0&iv_load_policy=3`}
+        src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&modestbranding=1&rel=0&controls=1&fs=1&showinfo=0&iv_load_policy=3`}
         frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups allow-fullscreen"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
       ></iframe>
 
