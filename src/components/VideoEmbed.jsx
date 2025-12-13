@@ -50,19 +50,8 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
     }
   }, [isPlaying, playing]);
 
-  const lockLandscape = async () => {
-    if (screen.orientation && screen.orientation.lock) {
-      try {
-        await screen.orientation.lock("landscape");
-      } catch (e) {
-        console.log("Orientation lock blocked");
-      }
-    }
-  };
-
   const handlePlay = () => {
     onPlay();
-    lockLandscape();
     const iframe = iframeRef.current;
     if (iframe) {
       iframe.contentWindow.postMessage(
@@ -82,11 +71,11 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
         src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1&modestbranding=1&rel=0&controls=1&fs=1&showinfo=0&iv_load_policy=3`}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups allow-fullscreen"
+        sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
       ></iframe>
 
-      {!playing && (
+      {/* {!playing && (
         <div style={{
           position: "absolute",
           top: 0,
@@ -97,7 +86,7 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
           pointerEvents: "auto",
           cursor: "default",
         }}></div>
-      )}
+      )} */}
 
       {!playing && (
         <div

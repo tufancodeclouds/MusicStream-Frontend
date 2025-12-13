@@ -561,16 +561,6 @@ const styles = {
     fontWeight: '500',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     cursor: 'pointer',
-  },
-  blockLogo: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    width: "80px",
-    height: "40px",
-    zIndex: 9999,
-    cursor: "default",
-    background: "transparent",
   }
 };
 
