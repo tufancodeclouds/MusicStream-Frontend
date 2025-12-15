@@ -1,0 +1,5 @@
+{
+  "appId": "com.musicstream.app",
+  "appName": "Music Stream",
+  "webDir": "dist"
+}
