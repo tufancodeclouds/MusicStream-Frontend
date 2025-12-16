@@ -75,19 +75,6 @@ const VideoEmbed = ({ videoId, isPlaying, onPlay }) => {
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
       ></iframe>
 
-      {/* {!playing && (
-        <div style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 9999,
-          pointerEvents: "auto",
-          cursor: "default",
-        }}></div>
-      )} */}
-
       {!playing && (
         <div
           onClick={handlePlay}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Music2, Play, ExternalLink, Loader2 } from 'lucide-react';
+import { Search, Music2, Play, ExternalLink, Loader2, Heart } from 'lucide-react';
 import VideoEmbed from './VideoEmbed';
 
 const MusicApp = () => {
@@ -10,6 +10,7 @@ const MusicApp = () => {
   const [playingVideoId, setPlayingVideoId] = useState(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_URL;
+  const currentYear = new Date().getFullYear();
 
   const searchSongs = async (searchQuery) => {
     if (!searchQuery.trim()) {
@@ -23,9 +24,28 @@ const MusicApp = () => {
     setError('');
 
     try {
+      const controller = new AbortController();
+      
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const res = await fetch(
-        `${API_BASE_URL}/api/search?query=${encodeURIComponent(searchQuery)}`
+        `${API_BASE_URL}/api/search?query=${encodeURIComponent(searchQuery)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          signal: controller.signal
+        }
       );
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
 
       if (data.status) {
@@ -60,201 +80,220 @@ const MusicApp = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.headerFlex} className='headerFlex2'>
-            <div style={styles.logo}>
-              <Music2 style={styles.logoIcon} />
-            </div>
-            <div>
-              <h1 style={styles.title}>MusicStream</h1>
-              <p style={styles.subtitle}>Discover the music you love</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={styles.mainContent}>
-        <div style={styles.searchWrapper}>
-          <div style={styles.searchGlow}></div>
-          <div style={styles.searchContainer}>
-            <div style={styles.searchIcon}>
-              <Search style={{ width: 24, height: 24 }} />
-            </div>
-            <input
-              type="text"
-              placeholder="Search songs, artists or albums"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={styles.input}
-              className='input2'
-            />
-            {loading && (
-              <div style={styles.searchingIndicator} className='searchingIndicator2'>
-                <Loader2 style={{ width: 20, height: 20, animation: 'spin 1s linear infinite' }} />
+    <div style={styles.appWrapper}>
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <div style={styles.headerContent}>
+            <div style={styles.headerFlex} className='headerFlex2'>
+              <div style={styles.logo}>
+                <Music2 style={styles.logoIcon} />
               </div>
-            )}
+              <div>
+                <h1 style={styles.title}>MusicStream</h1>
+                <p style={styles.subtitle}>Discover the music you love</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {error && (
-          <div style={styles.errorBox}>
-            <p style={styles.errorText}>{error}</p>
-          </div>
-        )}
-
-        {loading && (
-          <div style={styles.loadingContainer}>
-            <Loader2 style={{ ...styles.loadingIcon, animation: 'spin 1s linear infinite' }} />
-            <p style={styles.loadingText}>Searching for music...</p>
-          </div>
-        )}
-
-        {!loading && songs.length > 0 && (
-          <div>
-            <div style={styles.resultsHeader}>
-              <h2 style={styles.resultsTitle} className='resultsTitle2'>
-                Found {songs.length} results
-              </h2>
+        <div style={styles.mainContent}>
+          <div style={styles.searchWrapper}>
+            <div style={styles.searchGlow}></div>
+            <div style={styles.searchContainer}>
+              <div style={styles.searchIcon}>
+                <Search style={{ width: 24, height: 24 }} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search songs, artists or albums"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={styles.input}
+                className='input2'
+              />
+              {loading && (
+                <div style={styles.searchingIndicator} className='searchingIndicator2'>
+                  <Loader2 style={{ width: 20, height: 20, animation: 'spin 1s linear infinite' }} />
+                </div>
+              )}
             </div>
+          </div>
 
-            <div style={styles.songGrid}>
-              {songs.map((song, index) => (
-                <div
-                  key={song.id}
-                  style={{
-                    ...styles.songCard,
-                    animation: `slideIn 0.4s ease-out ${index * 0.05}s both`
-                  }}
-                >
-                  <div style={styles.songCardContent}>
-                    <div style={styles.thumbnailWrapper} className='d-none d-lg-block'>
-                      <img
-                        src={song?.image?.[0] || '/placeholder.png'}
-                        alt={song.name}
-                        style={styles.thumbnail}
-                      />
-                      <div style={styles.playOverlay}>
-                        <div style={styles.playButton}>
-                          <Play style={styles.playIcon} />
+          {error && (
+            <div style={styles.errorBox}>
+              <p style={styles.errorText}>{error}</p>
+            </div>
+          )}
+
+          {loading && (
+            <div style={styles.loadingContainer}>
+              <Loader2 style={{ ...styles.loadingIcon, animation: 'spin 1s linear infinite' }} />
+              <p style={styles.loadingText}>Searching for music</p>
+            </div>
+          )}
+
+          {!loading && songs.length > 0 && (
+            <div>
+              <div style={styles.resultsHeader}>
+                <h2 style={styles.resultsTitle} className='resultsTitle2'>
+                  Found {songs.length} results
+                </h2>
+              </div>
+
+              <div style={styles.songGrid}>
+                {songs.map((song, index) => (
+                  <div
+                    key={song.id}
+                    style={{
+                      ...styles.songCard,
+                      animation: `slideIn 0.4s ease-out ${index * 0.05}s both`
+                    }}
+                  >
+                    <div style={styles.songCardContent}>
+                      <div style={styles.thumbnailWrapper} className='d-none d-lg-block'>
+                        <img
+                          src={song?.image?.[0] || '/placeholder.png'}
+                          alt={song.name}
+                          style={styles.thumbnail}
+                        />
+                        <div style={styles.playOverlay}>
+                          <div style={styles.playButton}>
+                            <Play style={styles.playIcon} />
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div style={styles.songInfo}>
-                      <div>
-                        <h3 style={styles.songName}>{song.name}</h3>
-                        <p style={styles.artistName}>
-                          <Music2 style={styles.artistIcon} />
-                          {song.primaryArtists}
-                        </p>
-                      </div>
+                      <div style={styles.songInfo}>
+                        <div>
+                          <h3 style={styles.songName}>{song.name}</h3>
+                          <p style={styles.artistName}>
+                            <Music2 style={styles.artistIcon} />
+                            {song.primaryArtists}
+                          </p>
+                        </div>
 
-                      <div style={styles.videoWrapper}>
-                        <div style={styles.videoContainer}>
-                          <VideoEmbed 
-                            videoId={song.id}
-                            isPlaying={playingVideoId === song.id}
-                            onPlay={() => handleVideoPlay(song.id)}
-                          />
-                          <div style={styles.blockLogo}></div>
+                        <div style={styles.videoWrapper}>
+                          <div style={styles.videoContainer}>
+                            <VideoEmbed 
+                              videoId={song.id}
+                              isPlaying={playingVideoId === song.id}
+                              onPlay={() => handleVideoPlay(song.id)}
+                            />
+                            <div style={styles.blockLogo}></div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {!loading && query.trim() && songs.length === 0 && !error && (
-          <div style={styles.centerContainer}>
-            <div style={styles.messageBox}>
-              <Music2 style={styles.messageIcon} />
-              <h3 style={styles.messageTitle}>No results found</h3>
-              <p style={styles.messageText}>
-                Try searching with different keywords or check your spelling
-              </p>
-            </div>
-          </div>
-        )}
-
-        {!query.trim() && songs.length === 0 && (
-          <div style={styles.centerContainer}>
-            <div style={styles.messageBox}>
-              <div style={styles.welcomeLogo}>
-                <Music2 style={styles.welcomeIcon} />
-              </div>
-              <h3 style={styles.welcomeTitle}>Welcome to MusicStream</h3>
-              <p style={styles.welcomeText}>
-                Search for your favorite songs, artists, or albums and discover amazing music from MusicStream.
-              </p>
-              <div style={styles.tagsContainer}>
-                {['Yoga Music', 'Classical', 'Meditation', 'Sleep Sounds'].map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => handleTagClick(tag)}
-                    style={styles.tag}
-                  >
-                    {tag}
-                  </button>
                 ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
-      <style>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
+          {!loading && query.trim() && songs.length === 0 && !error && (
+            <div style={styles.centerContainer}>
+              <div style={styles.messageBox}>
+                <Music2 style={styles.messageIcon} />
+                <h3 style={styles.messageTitle}>No results found</h3>
+                <p style={styles.messageText}>
+                  Try searching with different keywords or check your spelling
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!query.trim() && songs.length === 0 && (
+            <div style={styles.centerContainer}>
+              <div style={styles.messageBox}>
+                <div style={styles.welcomeLogo}>
+                  <Music2 style={styles.welcomeIcon} />
+                </div>
+                <h3 style={styles.welcomeTitle}>Welcome to MusicStream</h3>
+                <p style={styles.welcomeText}>
+                  Search for your favorite songs, artists, or albums and discover amazing music from MusicStream.
+                </p>
+                <div style={styles.tagsContainer}>
+                  {['Yoga Music', 'Classical', 'Meditation', 'Sleep Sounds'].map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      style={styles.tag}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <footer style={styles.footer}>
+          <div style={styles.footerBottom}>
+            <p style={styles.copyright}>
+              <span style={styles.copyrightText}>&copy; {currentYear}</span>
+              <span style={styles.copyrightSeparator}>•</span>
+              <span style={styles.copyrightMade}>Made with</span>
+              <Heart style={styles.heartIcon} />
+              <span style={styles.copyrightMade}>by Tufan Ghosh</span>
+            </p>
+          </div>
+        </footer>
+
+        <style>{`
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
           }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        input::placeholder {
-          color: #ffffff99;
-        }
-        .d-none {
-          display: none;
-        }
-        @media (max-width: 575.99px) {
-          .headerFlex2 {
-            justify-content: center;
+          input::placeholder {
+            color: #ffffff99;
           }
-          .input2 {
-            font-size: 16px !important;
+          .d-none {
+            display: none;
           }
-          .searchingIndicator2 {
-            padding: 0 8px !important;
+          @media (max-width: 575.99px) {
+            .headerFlex2 {
+              justify-content: center;
+            }
+            .input2 {
+              font-size: 16px !important;
+            }
+            .searchingIndicator2 {
+              padding: 0 8px !important;
+            }
+            .resultsTitle2 {
+              font-size: 20px !important;
+            }
           }
-          .resultsTitle2 {
-            font-size: 20px !important;
+          @media (min-width: 992px) {
+            .d-lg-block {
+              display: block;
+            }
           }
-        }
-        @media (min-width: 992px) {
-          .d-lg-block {
-            display: block;
-          }
-        }
-      `}</style>
+        `}</style>
+      </div>
     </div>
   );
 };
 
 const styles = {
-  container: {
+  appWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
     minHeight: '100vh',
+  },
+  container: {
+    flex: 1,
     background: 'linear-gradient(to bottom right, #581c87, #6b21a8, #4338ca)',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
@@ -298,7 +337,8 @@ const styles = {
   mainContent: {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '32px 16px',
+    padding: '32px 16px 56px',
+    minHeight: '83vh',
   },
   searchWrapper: {
     marginBottom: '32px',
@@ -561,7 +601,40 @@ const styles = {
     fontWeight: '500',
     border: '1px solid rgba(255, 255, 255, 0.2)',
     cursor: 'pointer',
-  }
+  },
+  footer: {
+    color: '#d8b4fe',
+    padding: '14px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    backdropFilter: 'blur(16px)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+    marginTop: 'auto',
+  },
+  copyright: {
+    fontSize: '13px',
+    color: '#d8b4fe',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    flexWrap: 'wrap',
+  },
+  copyrightText: {
+    color: '#d8b4fe',
+  },
+  copyrightSeparator: {
+    color: '#a78bfa',
+  },
+  copyrightMade: {
+    color: '#d8b4fe',
+  },
+  heartIcon: {
+    width: 14,
+    height: 14,
+    color: '#ec4899',
+    fill: '#ec4899',
+  },
 };
 
 export default MusicApp;
